@@ -61,7 +61,7 @@ helps['quantum job list'] = """
 
 helps['quantum job output'] = """
     type: command
-    short-summary: Get the results of running a job.
+    short-summary: Get the results of running a Q# job.
     examples:
       - name: Print the results of a successful Azure Quantum job.
         text: |-

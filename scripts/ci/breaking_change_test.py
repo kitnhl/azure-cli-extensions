@@ -96,13 +96,11 @@ def get_base_meta_files(diff_ref):
     subprocess.run(cmd)
 
 
-def meta_diff(only_break=False):
+def meta_diff():
     if os.path.exists(diff_meta_path):
         for file in os.listdir(diff_meta_path):
             if file.endswith('.json'):
                 cmd = ['azdev', 'command-change', 'meta-diff', '--base-meta-file', os.path.join(base_meta_path, file), '--diff-meta-file', os.path.join(diff_meta_path, file), '--output-file', os.path.join(output_path, file)]
-                if only_break:
-                    cmd.append('--only-break')
                 print(cmd)
                 subprocess.run(cmd)
         cmd = ['ls', '-al', output_path]
@@ -110,7 +108,7 @@ def meta_diff(only_break=False):
         subprocess.run(cmd)
 
 
-def get_pipeline_result(only_break=False):
+def get_pipeline_result():
     pipeline_result = {
         "breaking_change_test": {
             "Details": [
@@ -150,18 +148,7 @@ def get_pipeline_result(only_break=False):
             "Status": "Succeeded",
             "Content": ""
         })
-
-    result_length = len(json.dumps(pipeline_result, indent=4))
-    if result_length > 65535:
-        if only_break:
-            logger.error("Breaking change report exceeds 65535 characters even with only_break=True.")
-            return pipeline_result
-
-        logger.info("Regenerating breaking change report with only_break=True to control length within 65535.")
-        meta_diff(only_break=True)
-        pipeline_result = get_pipeline_result(only_break=True)
-        return pipeline_result
-
+    print(json.dumps(pipeline_result, indent=4))
     return pipeline_result
 
 

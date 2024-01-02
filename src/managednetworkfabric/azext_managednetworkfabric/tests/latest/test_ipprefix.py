@@ -13,16 +13,13 @@ from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
 from azure.cli.testsdk.scenario_tests import AllowLargeResponse
 from .config import CONFIG
 
-
 def setup_scenario1(test):
     ''' Env setup_scenario1 '''
     pass
 
-
 def cleanup_scenario1(test):
     '''Env cleanup_scenario1 '''
     pass
-
 
 def call_scenario1(test):
     ''' # Testcase: scenario1'''
@@ -35,14 +32,12 @@ def call_scenario1(test):
     step_delete(test, checks=[])
     cleanup_scenario1(test)
 
-
 def step_create(test, checks=None):
     '''ipprefix create operation'''
     if checks is None:
         checks = []
     test.cmd(
         'az networkfabric ipprefix create --resource-group {rg} --location {location} --resource-name {name} --ip-prefix-rules {ipPrefixRules} ', checks=checks)
-
 
 def step_show(test, checks=None):
     '''ipprefix show operation'''
@@ -51,14 +46,12 @@ def step_show(test, checks=None):
     test.cmd(
         'az networkfabric ipprefix show --resource-name {name} --resource-group {rg}')
 
-
 def step_update(test, checks=None):
     '''ipprefix update operation'''
     if checks is None:
         checks = []
     test.cmd(
         'az networkfabric ipprefix create --resource-group {rg} --location {location} --resource-name {name} --ip-prefix-rules {updatedIpPrefixRules} ', checks=checks)
-
 
 def step_list_resource_group(test, checks=None):
     '''ipprefix list by resource group operation'''
@@ -67,13 +60,11 @@ def step_list_resource_group(test, checks=None):
     test.cmd(
         'az networkfabric ipprefix list --resource-group {rg}')
 
-
 def step_list_subscription(test, checks=None):
     '''ipprefix list by subscription'''
     if checks is None:
         checks = []
     test.cmd('az networkfabric ipprefix list')
-
 
 def step_delete(test, checks=None):
     '''ipprefix delete operation'''
@@ -81,7 +72,6 @@ def step_delete(test, checks=None):
         checks = []
     test.cmd(
         'az networkfabric ipprefix delete --resource-name {name} --resource-group {rg}')
-
 
 class GA_IpPrefixScenarioTest1(ScenarioTest):
     ''' IpPrefix Scenario test'''

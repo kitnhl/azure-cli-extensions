@@ -20,12 +20,14 @@ from azext_aks_preview.azurecontainerstorage._consts import (
     CONST_STORAGE_POOL_TYPE_EPHEMERAL_DISK,
 )
 from azext_aks_preview.azurecontainerstorage._helpers import (
+    check_if_extension_is_installed,
     get_k8s_extension_module,
     perform_role_operations_on_managed_rg,
     register_dependent_rps,
     should_create_storagepool,
 )
 from knack.log import get_logger
+from knack.prompting import prompt_y_n
 
 logger = get_logger(__name__)
 
@@ -137,16 +139,16 @@ def perform_enable_azure_container_storage(
         create_result = LongRunningOperation(cmd.cli_ctx)(result)
         if create_result.provisioning_state == "Succeeded":
             logger.warning("Azure Container Storage successfully installed.")
-    except Exception as ex:  # pylint: disable=broad-except
+    except Exception as ex:
         if is_cluster_create:
-            logger.error("Azure Container Storage failed to install.\nError: %s", ex)
+            logger.error("Azure Container Storage failed to install.\nError: {0}".format(ex.message))
             logger.warning(
                 "AKS cluster is created. "
                 "Please run `az aks update` along with `--enable-azure-container-storage` "
                 "to enable Azure Container Storage."
             )
         else:
-            logger.error("AKS update to enable Azure Container Storage failed.\nError: %s", ex)
+            logger.error("AKS update to enable Azure Container Storage failed.\nError: {0}".format(ex.message))
 
 
 def perform_disable_azure_container_storage(
@@ -192,7 +194,7 @@ def perform_disable_azure_container_storage(
             # we don't need to long wait while performing the delete operation.
             # Setting no_wait_delete_op = True.
             no_wait_delete_op = True
-        except Exception as ex:  # pylint: disable=broad-except
+        except Exception as ex:
             config_settings = [{"cli.storagePool.uninstallValidation": False}]
             k8s_extension_custom_mod.update_k8s_extension(
                 cmd,
@@ -206,16 +208,15 @@ def perform_disable_azure_container_storage(
                 no_wait=True,
             )
 
-            if "pre-upgrade hooks failed" in str(ex):
+            if ex.message.__contains__("pre-upgrade hooks failed"):
                 raise UnknownError(
                     "Validation failed. "
                     "Please ensure that storagepools are not being used. "
                     "Unable to disable Azure Container Storage. "
                     "Reseting cluster state."
-                ) from ex
-            raise UnknownError(
-                "Validation failed. Unable to disable Azure Container Storage. Reseting cluster state."
-            ) from ex
+                )
+            else:
+                raise UnknownError("Validation failed. Unable to disable Azure Container Storage. Reseting cluster state.")
 
     # Step 2: If the extension is installed and validation succeeded or skipped, call delete_k8s_extension
     try:
@@ -233,9 +234,7 @@ def perform_disable_azure_container_storage(
         if not no_wait_delete_op:
             LongRunningOperation(cmd.cli_ctx)(delete_op_result)
     except Exception as delete_ex:
-        raise UnknownError(
-            "Failure observed while disabling Azure Container Storage."
-        ) from delete_ex
+        raise UnknownError("Failure observed while disabling Azure Container Storage.\nError: {0}".format(delete_ex.message))
 
     logger.warning("Azure Container Storage has been disabled.")
 

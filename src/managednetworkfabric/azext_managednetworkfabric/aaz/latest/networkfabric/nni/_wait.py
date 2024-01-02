@@ -288,14 +288,12 @@ class Wait(AAZWaitCommand):
             )
             option_b_layer3_configuration.primary_ipv6_prefix = AAZStrType(
                 serialized_name="primaryIpv6Prefix",
-                nullable=True,
             )
             option_b_layer3_configuration.secondary_ipv4_prefix = AAZStrType(
                 serialized_name="secondaryIpv4Prefix",
             )
             option_b_layer3_configuration.secondary_ipv6_prefix = AAZStrType(
                 serialized_name="secondaryIpv6Prefix",
-                nullable=True,
             )
             option_b_layer3_configuration.vlan_id = AAZIntType(
                 serialized_name="vlanId",

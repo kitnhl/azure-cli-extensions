@@ -32,7 +32,9 @@ from azext_aks_preview._consts import (
     CONST_VIRTUAL_MACHINE_SCALE_SETS,
     CONST_AVAILABILITY_SET,
     CONST_VIRTUAL_MACHINES,
+    CONST_OS_SKU_UBUNTU,
 )
+from azext_aks_preview._params import node_os_skus_update
 from azext_aks_preview._helpers import get_nodepool_snapshot_by_snapshot_id
 
 logger = get_logger(__name__)
@@ -96,9 +98,7 @@ class AKSPreviewAgentPoolContext(AKSAgentPoolContext):
         elif vm_set_type.lower() == CONST_VIRTUAL_MACHINES.lower():
             vm_set_type = CONST_VIRTUAL_MACHINES
         else:
-            raise InvalidArgumentValueError(
-                "--vm-set-type can only be VirtualMachineScaleSets, AvailabilitySet or VirtualMachines(Preview)"
-            )
+            raise InvalidArgumentValueError("--vm-set-type can only be VirtualMachineScaleSets, AvailabilitySet or VirtualMachines(Preview)")
         # this parameter does not need validation
         return vm_set_type
 
@@ -132,7 +132,9 @@ class AKSPreviewAgentPoolContext(AKSAgentPoolContext):
         if message_of_the_day_file_path:
             if not os.path.isfile(message_of_the_day_file_path):
                 raise InvalidArgumentValueError(
-                    f"{message_of_the_day_file_path} is not valid file, or not accessable."
+                    "{} is not valid file, or not accessable.".format(
+                        message_of_the_day_file_path
+                    )
                 )
             message_of_the_day = read_file_content(
                 message_of_the_day_file_path)
@@ -505,7 +507,7 @@ class AKSPreviewAgentPoolAddDecorator(AKSAgentPoolAddDecorator):
 
         # Construct AgentPoolWindowsProfile if one of the fields has been set
         if disable_windows_outbound_nat:
-            agentpool.windows_profile = self.models.AgentPoolWindowsProfile(  # pylint: disable=no-member
+            agentpool.windows_profile = self.models.AgentPoolWindowsProfile(
                 disable_outbound_nat=disable_windows_outbound_nat
             )
 
@@ -516,7 +518,7 @@ class AKSPreviewAgentPoolAddDecorator(AKSAgentPoolAddDecorator):
 
         asg_ids = self.context.get_asg_ids()
         allowed_host_ports = self.context.get_allowed_host_ports()
-        agentpool.network_profile = self.models.AgentPoolNetworkProfile()  # pylint: disable=no-member
+        agentpool.network_profile = self.models.AgentPoolNetworkProfile()
         if allowed_host_ports is not None:
             agentpool.network_profile.allowed_host_ports = allowed_host_ports
             agentpool.network_profile.application_security_groups = asg_ids
@@ -542,9 +544,7 @@ class AKSPreviewAgentPoolAddDecorator(AKSAgentPoolAddDecorator):
 
         if self.context.get_enable_artifact_streaming():
             if agentpool.artifact_streaming_profile is None:
-                agentpool.artifact_streaming_profile = (
-                    self.models.AgentPoolArtifactStreamingProfile()  # pylint: disable=no-member
-                )
+                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()
             agentpool.artifact_streaming_profile.enabled = True
         return agentpool
 
@@ -584,7 +584,7 @@ class AKSPreviewAgentPoolAddDecorator(AKSAgentPoolAddDecorator):
         """
         self._ensure_agentpool(agentpool)
 
-        upgrade_settings = self.models.AgentPoolUpgradeSettings()  # pylint: disable=no-member
+        upgrade_settings = self.models.AgentPoolUpgradeSettings()
         max_surge = self.context.get_max_surge()
         if max_surge:
             upgrade_settings.max_surge = max_surge
@@ -654,7 +654,7 @@ class AKSPreviewAgentPoolUpdateDecorator(AKSAgentPoolUpdateDecorator):
         asg_ids = self.context.get_asg_ids()
         allowed_host_ports = self.context.get_allowed_host_ports()
         if not agentpool.network_profile and (asg_ids or allowed_host_ports):
-            agentpool.network_profile = self.models.AgentPoolNetworkProfile()  # pylint: disable=no-member
+            agentpool.network_profile = self.models.AgentPoolNetworkProfile()
         if asg_ids is not None:
             agentpool.network_profile.application_security_groups = asg_ids
         if allowed_host_ports is not None:
@@ -669,7 +669,7 @@ class AKSPreviewAgentPoolUpdateDecorator(AKSAgentPoolUpdateDecorator):
 
         if self.context.get_enable_artifact_streaming():
             if agentpool.artifact_streaming_profile is None:
-                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()  # pylint: disable=no-member
+                agentpool.artifact_streaming_profile = self.models.AgentPoolArtifactStreamingProfile()
             agentpool.artifact_streaming_profile.enabled = True
         return agentpool
 
@@ -714,7 +714,7 @@ class AKSPreviewAgentPoolUpdateDecorator(AKSAgentPoolUpdateDecorator):
 
         upgrade_settings = agentpool.upgrade_settings
         if upgrade_settings is None:
-            upgrade_settings = self.models.AgentPoolUpgradeSettings()  # pylint: disable=no-member
+            upgrade_settings = self.models.AgentPoolUpgradeSettings()
 
         max_surge = self.context.get_max_surge()
         if max_surge:

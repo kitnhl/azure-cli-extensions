@@ -9,8 +9,7 @@ from azure.cli.testsdk import (ScenarioTest, StorageAccountPreparer, record_only
 from azure.cli.testsdk.reverse_dependency import (
     get_dummy_cli,
 )
-from .custom_preparers import (SpringPreparer, SpringResourceGroupPreparer, SpringAppNamePreparer,
-                               SpringSubResourceWrapper)
+from .custom_preparers import (SpringPreparer, SpringResourceGroupPreparer, SpringAppNamePreparer, SpringSubResourceWrapper)
 from .custom_dev_setting_constant import SpringTestEnvironmentEnum
 
 # pylint: disable=line-too-long
@@ -39,13 +38,11 @@ class ByosTest(ScenarioTest):
             'storage_account': storage_account,
         })
 
-        self.cmd(
-            'spring storage add --name {storage} --storage-type {storageType} --account-name {storage_account} --account-key {accountKey} -g {resource_group} -s {serviceName}',
-            checks=[
-                self.check('name', '{storage}'),
-                self.check('properties.storageType', '{storageType}'),
-                self.check('properties.accountName', '{storage_account}'),
-            ])
+        self.cmd('spring storage add --name {storage} --storage-type {storageType} --account-name {storage_account} --account-key {accountKey} -g {resource_group} -s {serviceName}', checks=[
+            self.check('name', '{storage}'),
+            self.check('properties.storageType', '{storageType}'),
+            self.check('properties.accountName', '{storage_account}'),
+        ])
 
         self.cmd('spring storage show --name {storage} -g {resource_group} -s {serviceName}', checks=[
             self.check('name', '{storage}')
@@ -93,14 +90,10 @@ class CertTearDown(SpringSubResourceWrapper):
     def create_resource(self, *_, **kwargs):
         self.resource_group = self._get_resource_group(**kwargs)
         self.spring = self._get_spring(**kwargs)
-
+    
     def remove_resource(self, *_, **__):
-        self.live_only_execute(self.cli_ctx,
-                               'spring certificate remove -g {}  -s {} -n balti-cert'.format(self.resource_group,
-                                                                                             self.spring))
-        self.live_only_execute(self.cli_ctx,
-                               'spring certificate remove -g {}  -s {} -n digi-cert'.format(self.resource_group,
-                                                                                            self.spring))
+        self.live_only_execute(self.cli_ctx, 'spring certificate remove -g {}  -s {} -n balti-cert'.format(self.resource_group, self.spring))
+        self.live_only_execute(self.cli_ctx, 'spring certificate remove -g {}  -s {} -n digi-cert'.format(self.resource_group, self.spring))
 
 
 @record_only()
@@ -112,9 +105,9 @@ class SslTests(ScenarioTest):
     @CertTearDown()
     def test_load_public_cert_to_app(self, resource_group, spring, app):
         py_path = os.path.abspath(os.path.dirname(__file__))
-        baltiCertPath = os.path.join(py_path, 'files/BaltimoreCyberTrustRoot.crt.pem').replace("\\", "/")
-        digiCertPath = os.path.join(py_path, 'files/DigiCertGlobalRootCA.crt.pem').replace("\\", "/")
-        loadCertPath = os.path.join(py_path, 'files/load_certificate.json').replace("\\", "/")
+        baltiCertPath = os.path.join(py_path, 'files/BaltimoreCyberTrustRoot.crt.pem').replace("\\","/")
+        digiCertPath = os.path.join(py_path, 'files/DigiCertGlobalRootCA.crt.pem').replace("\\","/")
+        loadCertPath = os.path.join(py_path, 'files/load_certificate.json').replace("\\","/")
 
         self.kwargs.update({
             'baltiCert': 'balti-cert',
@@ -141,17 +134,17 @@ class SslTests(ScenarioTest):
 
         self.cmd(
             'spring certificate show --name {digiCert} -g {rg} -s {serviceName}', checks=[
-                self.check('name', '{digiCert}')
-            ])
+            self.check('name', '{digiCert}')
+        ])
 
         self.cmd(
             'spring certificate show --name {baltiCert} -g {rg} -s {serviceName}', checks=[
-                self.check('name', '{baltiCert}')
-            ])
+            self.check('name', '{baltiCert}')
+        ])
 
         cert_result = self.cmd(
             'spring certificate list -g {rg} -s {serviceName}').get_output_in_json()
-        self.assertTrue(len(cert_result) >= 2)  # in case there are other cert resources
+        self.assertTrue(len(cert_result) >= 2) # in case there are other cert resources
 
         self.cmd(
             'spring app create --name {app} -f {loadCertPath} -g {rg} -s {serviceName}')
@@ -197,9 +190,7 @@ class PlannedMaintenanceTest(ScenarioTest):
             'resource_group': resource_group,
         })
 
-        self.cmd(
-            'spring update -g {resource_group} -n {serviceName} --enable-planned-maintenance --planned-maintenance-day Friday --planned-maintenance-start-hour 10',
-            checks=[
-                self.check('properties.maintenanceScheduleConfiguration.day', 'Friday'),
-                self.check('properties.maintenanceScheduleConfiguration.hour', 10)
-            ])
+        self.cmd('spring update -g {resource_group} -n {serviceName} --enable-planned-maintenance --planned-maintenance-day Friday --planned-maintenance-start-hour 10', checks=[
+            self.check('properties.maintenanceScheduleConfiguration.day', 'Friday'),
+            self.check('properties.maintenanceScheduleConfiguration.hour', 10)
+        ])

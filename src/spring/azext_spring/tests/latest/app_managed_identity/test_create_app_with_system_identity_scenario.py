@@ -25,6 +25,7 @@ class CreateAppWithSystemIdentity(ScenarioTest):
             self.check('identity.userAssignedIdentities', None)
         ])
 
+
     def test_create_app_with_system_assigned(self):
         self.kwargs.update({
             'app': 'create-app-system-identity-2',

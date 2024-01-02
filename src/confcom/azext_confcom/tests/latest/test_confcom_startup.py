@@ -9,7 +9,6 @@ from azext_confcom.custom import acipolicygen_confcom
 
 TEST_DIR = os.path.abspath(os.path.join(os.path.abspath(__file__), ".."))
 
-
 class InitialErrors(ScenarioTest):
     def test_invalid_output_flags(self):
         with self.assertRaises(SystemExit) as wrapped_exit:

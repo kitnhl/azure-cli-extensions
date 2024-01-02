@@ -8,24 +8,20 @@ import platform
 import re
 import stat
 import tempfile
-from typing import TypeVar
-
 import yaml
-from azext_aks_preview._client_factory import (
-    get_mc_snapshots_client,
-    get_nodepool_snapshots_client,
-)
+from typing import Any, List, TypeVar
 from azure.cli.command_modules.acs._helpers import map_azure_error_to_cli_error
-from azure.cli.command_modules.acs._validators import extract_comma_separated_string
-from azure.cli.core.azclierror import (
-    FileOperationError,
-    InvalidArgumentValueError,
-    ResourceNotFoundError,
-)
+from azure.cli.core.azclierror import InvalidArgumentValueError, ResourceNotFoundError, FileOperationError
 from azure.core.exceptions import AzureError
 from knack.log import get_logger
 from knack.prompting import NoTTYException, prompt_y_n
 from knack.util import CLIError
+
+from azext_aks_preview._client_factory import get_nodepool_snapshots_client, get_mc_snapshots_client
+
+from azure.cli.command_modules.acs._validators import (
+    extract_comma_separated_string,
+)
 
 logger = get_logger(__name__)
 
@@ -107,7 +103,8 @@ def _merge_kubernetes_configurations(existing_file, addition_file, replace, cont
             continue
 
     if addition is None:
-        raise CLIError(f'failed to load additional configuration from {addition_file}')
+        raise CLIError(
+            'failed to load additional configuration from {}'.format(addition_file))
 
     if existing is None:
         existing = addition
@@ -119,7 +116,6 @@ def _merge_kubernetes_configurations(existing_file, addition_file, replace, cont
 
     # check that ~/.kube/config is only read- and writable by its owner
     if platform.system() != "Windows" and not os.path.islink(existing_file):
-        # pylint: disable=consider-using-f-string
         existing_file_perms = "{:o}".format(stat.S_IMODE(os.lstat(existing_file).st_mode))
         if not existing_file_perms.endswith("600"):
             logger.warning(
@@ -128,24 +124,25 @@ def _merge_kubernetes_configurations(existing_file, addition_file, replace, cont
                 existing_file_perms,
             )
 
-    with open(existing_file, 'w+', encoding="utf-8") as stream:
+    with open(existing_file, 'w+') as stream:
         yaml.safe_dump(existing, stream, default_flow_style=False)
 
     current_context = addition.get('current-context', 'UNKNOWN')
-    msg = f'Merged "{current_context}" as current context in {existing_file}'
+    msg = 'Merged "{}" as current context in {}'.format(
+        current_context, existing_file)
     logger.warning(msg)
 
 
 def _load_kubernetes_configuration(filename):
     try:
-        with open(filename, encoding="utf-8") as stream:
+        with open(filename) as stream:
             return yaml.safe_load(stream)
     except (IOError, OSError) as ex:
         if getattr(ex, 'errno', 0) == errno.ENOENT:
-            raise CLIError(f'{filename} does not exist') from ex
+            raise CLIError('{} does not exist'.format(filename))
         raise
     except (yaml.parser.ParserError, UnicodeDecodeError) as ex:
-        raise CLIError(f'Error parsing {filename} ({str(ex)})') from ex
+        raise CLIError('Error parsing {} ({})'.format(filename, str(ex)))
 
 
 def _handle_merge(existing, addition, key, replace):
@@ -153,8 +150,10 @@ def _handle_merge(existing, addition, key, replace):
         return
     if key not in existing:
         raise FileOperationError(
-            f"No such key '{key}' in existing config, please confirm whether it is a valid config file. "
-            "May back up this config file, delete it and retry the command."
+            "No such key '{}' in existing config, please confirm whether it is a valid config file. "
+            "May back up this config file, delete it and retry the command.".format(
+                key
+            )
         )
     if not existing.get(key):
         existing[key] = addition[key]
@@ -196,7 +195,7 @@ def _fuzzy_match(query, arr):
         a_len = len(a)
         b_len = len(b)
         if a_len > b_len:  # @a should always be the shorter string
-            return similar_word(b, a)  # pylint: disable=arguments-out-of-order
+            return similar_word(b, a)
         if a in b:
             return True
         if b_len - a_len > 1:
@@ -238,7 +237,7 @@ def get_nodepool_snapshot_by_snapshot_id(cli_ctx, snapshot_id):
         resource_group_name = match.group(2)
         snapshot_name = match.group(3)
         return get_nodepool_snapshot(cli_ctx, subscription_id, resource_group_name, snapshot_name)
-    raise InvalidArgumentValueError(f"Cannot parse snapshot name from provided resource id '{snapshot_id}'.")
+    raise InvalidArgumentValueError("Cannot parse snapshot name from provided resource id '{}'.".format(snapshot_id))
 
 
 def get_nodepool_snapshot(cli_ctx, subscription_id, resource_group_name, snapshot_name):
@@ -248,9 +247,8 @@ def get_nodepool_snapshot(cli_ctx, subscription_id, resource_group_name, snapsho
     # track 2 sdk raise exception from azure.core.exceptions
     except AzureError as ex:
         if "not found" in ex.message:
-            # pylint: disable=raise-missing-from
-            raise ResourceNotFoundError(f"Snapshot '{snapshot_name}' not found.")
-        raise map_azure_error_to_cli_error(ex) from ex
+            raise ResourceNotFoundError("Snapshot '{}' not found.".format(snapshot_name))
+        raise map_azure_error_to_cli_error(ex)
     return snapshot
 
 
@@ -267,8 +265,7 @@ def get_cluster_snapshot_by_snapshot_id(cli_ctx, snapshot_id):
         snapshot_name = match.group(3)
         return get_cluster_snapshot(cli_ctx, subscription_id, resource_group_name, snapshot_name)
     raise InvalidArgumentValueError(
-        f"Cannot parse snapshot name from provided resource id {snapshot_id}."
-    )
+        "Cannot parse snapshot name from provided resource id {}.".format(snapshot_id))
 
 
 def get_cluster_snapshot(cli_ctx, subscription_id, resource_group_name, snapshot_name):
@@ -278,9 +275,8 @@ def get_cluster_snapshot(cli_ctx, subscription_id, resource_group_name, snapshot
     # track 2 sdk raise exception from azure.core.exceptions
     except AzureError as ex:
         if "not found" in ex.message:
-            # pylint: disable=raise-missing-from
-            raise ResourceNotFoundError(f"Managed cluster snapshot '{snapshot_name}' not found.")
-        raise map_azure_error_to_cli_error(ex) from ex
+            raise ResourceNotFoundError("Managed cluster snapshot '{}' not found.".format(snapshot_name))
+        raise map_azure_error_to_cli_error(ex)
     return snapshot
 
 

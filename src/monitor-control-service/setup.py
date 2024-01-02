@@ -10,7 +10,11 @@ from codecs import open
 from setuptools import setup, find_packages
 
 # HISTORY.rst entry.
-VERSION = '1.0.1'
+VERSION = '0.4.1'
+try:
+    from azext_amcs.manual.version import VERSION
+except ImportError:
+    pass
 
 # The full list of classifiers is available at
 # https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -28,13 +32,18 @@ CLASSIFIERS = [
 
 DEPENDENCIES = []
 
+try:
+    from azext_amcs.manual.dependency import DEPENDENCIES
+except ImportError:
+    pass
+
 with open('README.md', 'r', encoding='utf-8') as f:
     README = f.read()
 with open('HISTORY.rst', 'r', encoding='utf-8') as f:
     HISTORY = f.read()
 
 setup(
-    name='monitor-control-service',
+    name='monitor_control_service',
     version=VERSION,
     description='Microsoft Azure Command-Line Tools MonitorClient Extension',
     author='Microsoft Corporation',

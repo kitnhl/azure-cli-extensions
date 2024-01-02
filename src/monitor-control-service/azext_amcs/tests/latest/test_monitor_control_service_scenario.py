@@ -527,11 +527,10 @@ class Monitor_control_serviceScenarioTest(ScenarioTest):
         ])
 
         self.cmd('monitor data-collection endpoint update -g {rg} -n {name1} --public-network-access enabled '
-                 '--kind windows',
-                 checks=[
-                     self.check('networkAcls.publicNetworkAccess', 'Enabled'),
-                     self.check('kind', 'Windows')
-                 ])
+                 '--kind windows', checks=[
+            self.check('networkAcls.publicNetworkAccess', 'Enabled'),
+            self.check('kind', 'Windows')
+        ])
 
         self.cmd('monitor data-collection endpoint create -g {rg} -n {name2} '
                  '--public-network-access enabled --kind linux')
@@ -622,3 +621,4 @@ class Monitor_control_serviceScenarioTest(ScenarioTest):
         self.cmd('monitor data-collection rule list -g {rg}', checks=[
             self.check('length(@)', 0)
         ])
+

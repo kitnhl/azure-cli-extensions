@@ -4,7 +4,6 @@
 # Licensed under the MIT License. See License.txt in the project root for license information.
 # --------------------------------------------------------------------------------------------
 
-# pylint: disable=too-many-lines
 import os.path
 
 from knack.help_files import helps
@@ -15,7 +14,7 @@ AKS_SERVICE_PRINCIPAL_CACHE = os.path.join(
     '$HOME', '.azure', 'aksServicePrincipal.json')
 
 # AKS command help
-helps['aks create'] = f"""
+helps['aks create'] = """
     type: command
     short-summary: Create a new managed Kubernetes cluster.
     parameters:
@@ -26,7 +25,7 @@ helps['aks create'] = f"""
           type: string
           short-summary: Service principal used for authentication to Azure APIs.
           long-summary:  If not specified, a new service principal is created and cached at
-                         {AKS_SERVICE_PRINCIPAL_CACHE} to be used by subsequent `az aks` commands.
+                         {sp_cache} to be used by subsequent `az aks` commands.
         - name: --skip-subnet-role-assignment
           type: bool
           short-summary: Skip role assignment for subnet (advanced networking).
@@ -657,7 +656,7 @@ helps['aks create'] = f"""
         - name: Create a kubernetes cluster with Azure Monitor Metrics enabled.
           text: az aks create -g MyResourceGroup -n MyManagedCluster --enable-azuremonitormetrics
 
-"""
+""".format(sp_cache=AKS_SERVICE_PRINCIPAL_CACHE)
 
 helps['aks scale'] = """
     type: command

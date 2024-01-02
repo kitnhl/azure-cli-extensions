@@ -9,7 +9,7 @@
 MetricsConfiguration tests scenarios
 """
 
-from azure.cli.testsdk import ScenarioTest
+from azure.cli.testsdk import ResourceGroupPreparer, ScenarioTest
 
 from .config import CONFIG
 

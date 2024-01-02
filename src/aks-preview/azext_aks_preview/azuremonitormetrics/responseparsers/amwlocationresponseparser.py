@@ -17,9 +17,9 @@ def parseResourceProviderResponseForLocations(resourceProviderResponse):
 
 
 def parseLocations(locations: List[str]) -> List[str]:
-    if not locations or len(locations) == 0:
+    if not locations or not len(locations):
         return []
-    return [reduceLocation(x) for x in locations]
+    return list(map(lambda location: reduceLocation(location), locations))
 
 
 def reduceLocation(location: str) -> str:

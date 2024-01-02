@@ -12,16 +12,13 @@ NFC tests scenarios
 from azure.cli.testsdk import ScenarioTest, ResourceGroupPreparer
 from .config import CONFIG
 
-
 def setup_scenario1(test):
     ''' Env setup_scenario1 '''
     pass
 
-
 def cleanup_scenario1(test):
     '''Env cleanup_scenario1 '''
     pass
-
 
 def call_scenario1(test):
     ''' # Testcase: scenario1'''
@@ -33,15 +30,13 @@ def call_scenario1(test):
     step_delete(test, checks=[])
     cleanup_scenario1(test)
 
-
 def step_create(test, checks=None):
     '''nfc create operation'''
     if checks is None:
         checks = []
     test.cmd('az networkfabric controller create --resource-group {rg} --location {location}  --resource-name {name}'
              ' --ipv4-address-space {ipv4AddressSpace} --is-workload-management-network-enabled {isWorkloadManagementNetworkEnabled} --nfc-sku {nfcSku}'
-             ' --infra-er-connections {infraERConnections} --workload-er-connections {workloadERConnections}', checks=checks)
-
+             ' --infra-er-connections {infraERConnections} --workload-er-connections {workloadERConnections}' , checks=checks)
 
 def step_show(test, checks=None):
     '''nfc show operation'''
@@ -50,13 +45,11 @@ def step_show(test, checks=None):
     test.cmd(
         'az networkfabric controller show --resource-name {name} --resource-group {rg}')
 
-
 def step_list_resource_group(test, checks=None):
     '''nfc list by resource group operation'''
     if checks is None:
         checks = []
     test.cmd('az networkfabric controller list --resource-group {rg}')
-
 
 def step_list_subscription(test, checks=None):
     '''nfc list by subscription'''
@@ -64,14 +57,12 @@ def step_list_subscription(test, checks=None):
         checks = []
     test.cmd('az networkfabric controller list')
 
-
 def step_delete(test, checks=None):
     '''nfc delete operation'''
     if checks is None:
         checks = []
     test.cmd(
         'az networkfabric controller delete --resource-name {deleteNFCName} --resource-group {rg}')
-
 
 class GA_NFCScenarioTest1(ScenarioTest):
     ''' NFCScenario test'''

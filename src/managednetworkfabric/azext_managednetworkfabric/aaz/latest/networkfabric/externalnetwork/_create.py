@@ -169,7 +169,6 @@ class Create(AAZCommand):
         option_a_properties.primary_ipv6_prefix = AAZStrArg(
             options=["primary-ipv6-prefix"],
             help="IPv6 Address Prefix. Example: 3FFE:FFFF:0:CD30::a1/127",
-            nullable=True,
         )
         option_a_properties.secondary_ipv4_prefix = AAZStrArg(
             options=["secondary-ipv4-prefix"],
@@ -178,7 +177,6 @@ class Create(AAZCommand):
         option_a_properties.secondary_ipv6_prefix = AAZStrArg(
             options=["secondary-ipv6-prefix"],
             help="Secondary IPv6 Address Prefix. Example: 3FFE:FFFF:0:CD30::a4/127",
-            nullable=True,
         )
         option_a_properties.vlan_id = AAZIntArg(
             options=["vlan-id"],
@@ -408,9 +406,9 @@ class Create(AAZCommand):
                 option_a_properties.set_prop("mtu", AAZIntType, ".mtu")
                 option_a_properties.set_prop("peerASN", AAZIntType, ".peer_asn", typ_kwargs={"flags": {"required": True}})
                 option_a_properties.set_prop("primaryIpv4Prefix", AAZStrType, ".primary_ipv4_prefix")
-                option_a_properties.set_prop("primaryIpv6Prefix", AAZStrType, ".primary_ipv6_prefix", typ_kwargs={"nullable": True})
+                option_a_properties.set_prop("primaryIpv6Prefix", AAZStrType, ".primary_ipv6_prefix")
                 option_a_properties.set_prop("secondaryIpv4Prefix", AAZStrType, ".secondary_ipv4_prefix")
-                option_a_properties.set_prop("secondaryIpv6Prefix", AAZStrType, ".secondary_ipv6_prefix", typ_kwargs={"nullable": True})
+                option_a_properties.set_prop("secondaryIpv6Prefix", AAZStrType, ".secondary_ipv6_prefix")
                 option_a_properties.set_prop("vlanId", AAZIntType, ".vlan_id", typ_kwargs={"flags": {"required": True}})
 
             bfd_configuration = _builder.get(".properties.optionAProperties.bfdConfiguration")
@@ -573,14 +571,12 @@ class Create(AAZCommand):
             )
             option_a_properties.primary_ipv6_prefix = AAZStrType(
                 serialized_name="primaryIpv6Prefix",
-                nullable=True,
             )
             option_a_properties.secondary_ipv4_prefix = AAZStrType(
                 serialized_name="secondaryIpv4Prefix",
             )
             option_a_properties.secondary_ipv6_prefix = AAZStrType(
                 serialized_name="secondaryIpv6Prefix",
-                nullable=True,
             )
             option_a_properties.vlan_id = AAZIntType(
                 serialized_name="vlanId",

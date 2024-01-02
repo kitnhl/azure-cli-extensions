@@ -27,27 +27,15 @@ from azure.cli.command_modules.acs._consts import (
     DecoratorMode,
 )
 from azure.cli.command_modules.acs.agentpool_decorator import AKSAgentPoolParamDict
-from azure.cli.command_modules.acs.tests.latest.mocks import (
-    MockCLI,
-    MockClient,
-    MockCmd,
-)
-from azure.cli.core.azclierror import (
-    CLIInternalError,
-    InvalidArgumentValueError,
-    MutuallyExclusiveArgumentError,
-)
+from azure.cli.command_modules.acs.tests.latest.mocks import MockCLI, MockClient, MockCmd
+from azure.cli.core.azclierror import CLIInternalError, InvalidArgumentValueError, MutuallyExclusiveArgumentError
 
 
 class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
     def _remove_defaults_in_agentpool(self, agentpool):
         self.defaults_in_agentpool = {}
         for attr_name, attr_value in vars(agentpool).items():
-            if (
-                not attr_name.startswith("_")
-                and attr_name != "name"
-                and attr_value is not None
-            ):
+            if not attr_name.startswith("_") and attr_name != "name" and attr_value is not None:
                 self.defaults_in_agentpool[attr_name] = attr_value
                 setattr(agentpool, attr_name, None)
         return agentpool
@@ -59,11 +47,7 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
         return agentpool
 
     def create_initialized_agentpool_instance(
-        self,
-        nodepool_name="nodepool1",
-        remove_defaults=True,
-        restore_defaults=True,
-        **kwargs
+        self, nodepool_name="nodepool1", remove_defaults=True, restore_defaults=True, **kwargs
     ):
         """Helper function to create a properly initialized agentpool instance.
 
@@ -107,9 +91,7 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
         # custom value
         ctx_2 = AKSPreviewAgentPoolContext(
             self.cmd,
-            AKSAgentPoolParamDict(
-                {"zones": "test_zones", "node_zones": "test_node_zones"}
-            ),
+            AKSAgentPoolParamDict({"zones": "test_zones", "node_zones": "test_node_zones"}),
             self.models,
             DecoratorMode.CREATE,
             self.agentpool_decorator_mode,
@@ -142,18 +124,14 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             self.agentpool_decorator_mode,
         )
         self.assertEqual(ctx_1.get_message_of_the_day(), None)
-        agentpool_1 = self.create_initialized_agentpool_instance(
-            message_of_the_day="test_message_of_the_day"
-        )
+        agentpool_1 = self.create_initialized_agentpool_instance(message_of_the_day="test_message_of_the_day")
         ctx_1.attach_agentpool(agentpool_1)
         self.assertEqual(ctx_1.get_message_of_the_day(), "test_message_of_the_day")
 
         # custom
         ctx_2 = AKSPreviewAgentPoolContext(
             self.cmd,
-            AKSAgentPoolParamDict(
-                {"message_of_the_day": get_test_data_file_path("motd.txt")}
-            ),
+            AKSAgentPoolParamDict({"message_of_the_day": get_test_data_file_path("motd.txt")}),
             self.models,
             DecoratorMode.CREATE,
             self.agentpool_decorator_mode,
@@ -184,9 +162,7 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             self.agentpool_decorator_mode,
         )
         self.assertEqual(ctx_1.get_gpu_instance_profile(), None)
-        agentpool_1 = self.create_initialized_agentpool_instance(
-            gpu_instance_profile="test_gpu_instance_profile"
-        )
+        agentpool_1 = self.create_initialized_agentpool_instance(gpu_instance_profile="test_gpu_instance_profile")
         ctx_1.attach_agentpool(agentpool_1)
         self.assertEqual(ctx_1.get_gpu_instance_profile(), "test_gpu_instance_profile")
 
@@ -199,12 +175,8 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             DecoratorMode.CREATE,
             self.agentpool_decorator_mode,
         )
-        self.assertEqual(
-            ctx_1.get_workload_runtime(), CONST_WORKLOAD_RUNTIME_OCI_CONTAINER
-        )
-        agentpool_1 = self.create_initialized_agentpool_instance(
-            workload_runtime="test_workload_runtime"
-        )
+        self.assertEqual(ctx_1.get_workload_runtime(), CONST_WORKLOAD_RUNTIME_OCI_CONTAINER)
+        agentpool_1 = self.create_initialized_agentpool_instance(workload_runtime="test_workload_runtime")
         ctx_1.attach_agentpool(agentpool_1)
         self.assertEqual(ctx_1.get_workload_runtime(), "test_workload_runtime")
 
@@ -218,9 +190,7 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             self.agentpool_decorator_mode,
         )
         self.assertEqual(ctx_1.get_enable_custom_ca_trust(), True)
-        agentpool_1 = self.create_initialized_agentpool_instance(
-            enable_custom_ca_trust=False
-        )
+        agentpool_1 = self.create_initialized_agentpool_instance(enable_custom_ca_trust=False)
         ctx_1.attach_agentpool(agentpool_1)
         self.assertEqual(ctx_1.get_enable_custom_ca_trust(), False)
 
@@ -233,18 +203,14 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             self.agentpool_decorator_mode,
         )
         self.assertEqual(ctx_2.get_enable_custom_ca_trust(), True)
-        agentpool_2 = self.create_initialized_agentpool_instance(
-            enable_custom_ca_trust=False
-        )
+        agentpool_2 = self.create_initialized_agentpool_instance(enable_custom_ca_trust=False)
         ctx_2.attach_agentpool(agentpool_2)
         self.assertEqual(ctx_2.get_enable_custom_ca_trust(), True)
 
         # custom
         ctx_3 = AKSPreviewAgentPoolContext(
             self.cmd,
-            AKSAgentPoolParamDict(
-                {"enable_custom_ca_trust": True, "disable_custom_ca_trust": True}
-            ),
+            AKSAgentPoolParamDict({"enable_custom_ca_trust": True, "disable_custom_ca_trust": True}),
             self.models,
             DecoratorMode.UPDATE,
             self.agentpool_decorator_mode,
@@ -262,18 +228,14 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
             self.agentpool_decorator_mode,
         )
         self.assertEqual(ctx_1.get_disable_custom_ca_trust(), True)
-        agentpool_1 = self.create_initialized_agentpool_instance(
-            enable_custom_ca_trust=True
-        )
+        agentpool_1 = self.create_initialized_agentpool_instance(enable_custom_ca_trust=True)
         ctx_1.attach_agentpool(agentpool_1)
         self.assertEqual(ctx_1.get_disable_custom_ca_trust(), True)
 
         # custom
         ctx_2 = AKSPreviewAgentPoolContext(
             self.cmd,
-            AKSAgentPoolParamDict(
-                {"enable_custom_ca_trust": True, "disable_custom_ca_trust": True}
-            ),
+            AKSAgentPoolParamDict({"enable_custom_ca_trust": True, "disable_custom_ca_trust": True}),
             self.models,
             DecoratorMode.UPDATE,
             self.agentpool_decorator_mode,
@@ -393,10 +355,7 @@ class AKSPreviewAgentPoolContextCommonTestCase(unittest.TestCase):
         ctx_5.attach_agentpool(agentpool_5)
         self.assertEqual(ctx_5.get_os_sku(), None)
 
-
-class AKSPreviewAgentPoolContextStandaloneModeTestCase(
-    AKSPreviewAgentPoolContextCommonTestCase
-):
+class AKSPreviewAgentPoolContextStandaloneModeTestCase(AKSPreviewAgentPoolContextCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -404,9 +363,7 @@ class AKSPreviewAgentPoolContextStandaloneModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.STANDALONE
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
 
     def test_get_zones(self):
         self.common_get_zones()
@@ -435,10 +392,7 @@ class AKSPreviewAgentPoolContextStandaloneModeTestCase(
     def test_get_os_sku(self):
         self.common_get_os_sku()
 
-
-class AKSPreviewAgentPoolContextManagedClusterModeTestCase(
-    AKSPreviewAgentPoolContextCommonTestCase
-):
+class AKSPreviewAgentPoolContextManagedClusterModeTestCase(AKSPreviewAgentPoolContextCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -446,9 +400,7 @@ class AKSPreviewAgentPoolContextManagedClusterModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.MANAGED_CLUSTER
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
 
     def test_get_zones(self):
         self.common_get_zones()
@@ -477,16 +429,11 @@ class AKSPreviewAgentPoolContextManagedClusterModeTestCase(
     def test_get_os_sku(self):
         self.common_get_os_sku()
 
-
 class AKSPreviewAgentPoolAddDecoratorCommonTestCase(unittest.TestCase):
     def _remove_defaults_in_agentpool(self, agentpool):
         self.defaults_in_agentpool = {}
         for attr_name, attr_value in vars(agentpool).items():
-            if (
-                not attr_name.startswith("_")
-                and attr_name != "name"
-                and attr_value is not None
-            ):
+            if not attr_name.startswith("_") and attr_name != "name" and attr_value is not None:
                 self.defaults_in_agentpool[attr_name] = attr_value
                 setattr(agentpool, attr_name, None)
         return agentpool
@@ -498,11 +445,7 @@ class AKSPreviewAgentPoolAddDecoratorCommonTestCase(unittest.TestCase):
         return agentpool
 
     def create_initialized_agentpool_instance(
-        self,
-        nodepool_name="nodepool1",
-        remove_defaults=True,
-        restore_defaults=True,
-        **kwargs
+        self, nodepool_name="nodepool1", remove_defaults=True, restore_defaults=True, **kwargs
     ):
         """Helper function to create a properly initialized agentpool instance.
 
@@ -571,10 +514,7 @@ class AKSPreviewAgentPoolAddDecoratorCommonTestCase(unittest.TestCase):
         dec_1 = AKSPreviewAgentPoolAddDecorator(
             self.cmd,
             self.client,
-            {
-                "gpu_instance_profile": "test_gpu_instance_profile",
-                "workload_runtime": "test_workload_runtime",
-            },
+            {"gpu_instance_profile": "test_gpu_instance_profile", "workload_runtime": "test_workload_runtime"},
             self.resource_type,
             self.agentpool_decorator_mode,
         )
@@ -633,10 +573,7 @@ class AKSPreviewAgentPoolAddDecoratorCommonTestCase(unittest.TestCase):
         )
         self.assertEqual(dec_agentpool_1, ground_truth_agentpool_1)
 
-
-class AKSPreviewAgentPoolAddDecoratorStandaloneModeTestCase(
-    AKSPreviewAgentPoolAddDecoratorCommonTestCase
-):
+class AKSPreviewAgentPoolAddDecoratorStandaloneModeTestCase(AKSPreviewAgentPoolAddDecoratorCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -644,9 +581,7 @@ class AKSPreviewAgentPoolAddDecoratorStandaloneModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.STANDALONE
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
         self.client = MockClient()
 
     def test_set_up_preview_vm_properties(self):
@@ -734,9 +669,7 @@ class AKSPreviewAgentPoolAddDecoratorStandaloneModeTestCase(
         dec_1.context.raw_param.print_usage_statistics()
 
 
-class AKSPreviewAgentPoolAddDecoratorManagedClusterModeTestCase(
-    AKSPreviewAgentPoolAddDecoratorCommonTestCase
-):
+class AKSPreviewAgentPoolAddDecoratorManagedClusterModeTestCase(AKSPreviewAgentPoolAddDecoratorCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -744,9 +677,7 @@ class AKSPreviewAgentPoolAddDecoratorManagedClusterModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.MANAGED_CLUSTER
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
         self.client = MockClient()
 
     def test_set_up_preview_vm_properties(self):
@@ -838,11 +769,7 @@ class AKSPreviewAgentPoolUpdateDecoratorCommonTestCase(unittest.TestCase):
     def _remove_defaults_in_agentpool(self, agentpool):
         self.defaults_in_agentpool = {}
         for attr_name, attr_value in vars(agentpool).items():
-            if (
-                not attr_name.startswith("_")
-                and attr_name != "name"
-                and attr_value is not None
-            ):
+            if not attr_name.startswith("_") and attr_name != "name" and attr_value is not None:
                 self.defaults_in_agentpool[attr_name] = attr_value
                 setattr(agentpool, attr_name, None)
         return agentpool
@@ -854,11 +781,7 @@ class AKSPreviewAgentPoolUpdateDecoratorCommonTestCase(unittest.TestCase):
         return agentpool
 
     def create_initialized_agentpool_instance(
-        self,
-        nodepool_name="nodepool1",
-        remove_defaults=True,
-        restore_defaults=True,
-        **kwargs
+        self, nodepool_name="nodepool1", remove_defaults=True, restore_defaults=True, **kwargs
     ):
         """Helper function to create a properly initialized agentpool instance.
 
@@ -970,9 +893,7 @@ class AKSPreviewAgentPoolUpdateDecoratorCommonTestCase(unittest.TestCase):
         self.assertEqual(dec_agentpool_2, grond_truth_agentpool_2)
 
 
-class AKSPreviewAgentPoolUpdateDecoratorStandaloneModeTestCase(
-    AKSPreviewAgentPoolUpdateDecoratorCommonTestCase
-):
+class AKSPreviewAgentPoolUpdateDecoratorStandaloneModeTestCase(AKSPreviewAgentPoolUpdateDecoratorCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -980,9 +901,7 @@ class AKSPreviewAgentPoolUpdateDecoratorStandaloneModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.STANDALONE
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
         self.client = MockClient()
 
     def test_update_custom_ca_trust(self):
@@ -1029,9 +948,7 @@ class AKSPreviewAgentPoolUpdateDecoratorStandaloneModeTestCase(
             self.agentpool_decorator_mode,
         )
         self.client.get = Mock(
-            return_value=self.create_initialized_agentpool_instance(
-                nodepool_name="test_nodepool_name"
-            )
+            return_value=self.create_initialized_agentpool_instance(nodepool_name="test_nodepool_name")
         )
         dec_agentpool_1 = dec_1.update_agentpool_profile_preview()
         ground_truth_agentpool_1 = self.create_initialized_agentpool_instance(
@@ -1042,9 +959,7 @@ class AKSPreviewAgentPoolUpdateDecoratorStandaloneModeTestCase(
         dec_1.context.raw_param.print_usage_statistics()
 
 
-class AKSPreviewAgentPoolUpdateDecoratorManagedClusterModeTestCase(
-    AKSPreviewAgentPoolUpdateDecoratorCommonTestCase
-):
+class AKSPreviewAgentPoolUpdateDecoratorManagedClusterModeTestCase(AKSPreviewAgentPoolUpdateDecoratorCommonTestCase):
     def setUp(self):
         # manually register CUSTOM_MGMT_AKS_PREVIEW
         register_aks_preview_resource_type()
@@ -1052,9 +967,7 @@ class AKSPreviewAgentPoolUpdateDecoratorManagedClusterModeTestCase(
         self.cmd = MockCmd(self.cli_ctx)
         self.resource_type = CUSTOM_MGMT_AKS_PREVIEW
         self.agentpool_decorator_mode = AgentPoolDecoratorMode.MANAGED_CLUSTER
-        self.models = AKSPreviewAgentPoolModels(
-            self.cmd, self.resource_type, self.agentpool_decorator_mode
-        )
+        self.models = AKSPreviewAgentPoolModels(self.cmd, self.resource_type, self.agentpool_decorator_mode)
         self.client = MockClient()
 
     def test_update_custom_ca_trust(self):

@@ -18,7 +18,6 @@ from knack.log import get_logger
 logger = get_logger(__name__)
 free_mock_client = mock.MagicMock()
 
-
 def _get_test_cmd():
     cli_ctx = DummyCli()
     cli_ctx.data['subscription_id'] = '00000000-0000-0000-0000-000000000000'

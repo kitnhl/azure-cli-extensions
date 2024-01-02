@@ -13,8 +13,6 @@ from azure.cli.testsdk import (ScenarioTest, record_only)
 """
 Mark record_only to use the recording files as the mocked server to run the tests.
 """
-
-
 @record_only()
 class ApiPortalTryOutApiTest(ScenarioTest):
 
@@ -36,3 +34,4 @@ class ApiPortalTryOutApiTest(ScenarioTest):
 
         self.cmd('spring api-portal update -g {rg} -s {serviceName} --enable-api-try-out true',
                  self.check('properties.apiTryOutEnabledState', 'Enabled'))
+
